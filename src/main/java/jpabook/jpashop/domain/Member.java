@@ -22,6 +22,6 @@ public class Member {
     @Embedded
     private Address address;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member") // order table에 있는 member에 맵핑된 것일뿐이야. FK가 변경되지 않아.
     private List<Order> orders = new ArrayList<>();
 }
