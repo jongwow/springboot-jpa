@@ -14,7 +14,7 @@ public class Member {
 
     @Id
     @GeneratedValue
-    @Column(name = "member_id")
+    @Column(name = "member_id") // 단순하게 id라고 하면 찾거나 join할 때 쉽지 않음.
     private Long id;
 
     private String name;
