@@ -1,17 +1,17 @@
 package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Member;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Repository // 이걸 사용해서 component scan으로 spring bean으로 등록됨
+@RequiredArgsConstructor
 public class MemberRepository {
 
-    @PersistenceContext // jpa에서 제공하는 것. spring이 entity manager를 만들어서 이것에 주입해줌
-    private EntityManager em; // JPA의 entity manager를 주입을 해준다.
+    private final EntityManager em; // JPA의 entity manager를 주입을 해준다.
 
     // 만약 Factory를 주입하고 싶다.
     // PersistentUnit이라고 있음.
