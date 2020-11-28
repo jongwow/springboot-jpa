@@ -17,6 +17,7 @@ public class MemberRepository {
     // PersistentUnit이라고 있음.
 
     public void save(Member member) {
+        // 이렇게한다고 DB에 commit되는 것이 아님. Transaction이 commit을 하는 순간, entity manager에 있는 것을 SQL로 만들어서 DB에 적용시킨다?
         em.persist(member);
     }
 

@@ -14,27 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    /*
-    @Autowired // injection. 여러 방법 중 하나. spring bean에 들어있는 memberRepository를 inject. field inject이라고도 함.
-    위와 같이 하는 것도 많이 쓰긴 쓰는데 바꾸지 못함.
-    (그래서 setter injection을 쓰기도 함)
-    // private MemberRepository memberRepository;
-        @Autowired
-    public void setMemberRepository(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository; // 근데 이것도 중간에 바뀔 수도 있어서 아래를 추천.(생성자 주입)
-    }
-    @Autowired
-    public MemberService(MemberRepository memberRepository) {
-    //    생성될때만 호출이라 중간에 바뀔 염려 없음. Test Case같은 거 작성할 때도 직접 주입하는 것을 강제하기 때문에 명시적이라 또 좋음.
-        this.memberRepository = memberRepository;
-    }
-    // 근데 또 요즘에는 그냥 생성자의 Autowired annotation을 빼고 final로 선언하기도 함. 그래서 최종적인 모습은 아래와 같음
-    // 근데 이걸 lombok의 RequiredArgsConstructor(final만 생성자에 주입)을 쓰면 생성자코드도 안써도 됨.
-    private final MemberRepository memberRepository;
-
-    public MemberService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }*/
 
     /**
      * 회원가입
