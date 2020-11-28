@@ -23,5 +23,6 @@ public class Member {
     private Address address;
 
     @OneToMany(mappedBy = "member") // order table에 있는 member에 맵핑된 것일뿐이야. FK가 변경되지 않아.
-    private List<Order> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>(); // 초기화의 BEST Practice.(NULL safe)
+    // 영속화된 컬렉션이 바뀔 수도 있으니까 건드리지 않는 것이 좋다.
 }
