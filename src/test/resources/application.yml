@@ -1,0 +1,19 @@
+spring:
+#  datasource:
+#    url: jdbc:h2:mem:test
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop # 종료시점에 drop
+#    properties:
+#      hibernate:
+#        format_sql: true
+##        show_sql: true # sout으로 출력되기때문에 아래 logging으로 보자
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
