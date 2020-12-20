@@ -73,7 +73,7 @@ public class ItemController {
         return "redirect:/items";
     }
 
-
+/*
     @PostMapping("items/{itemId}/edit")
     public String updateItem_v1(@ModelAttribute("form") BookForm form, @PathVariable Long itemId) {
         // 실무 에선 itemId를 조심해야함. 뭔가 서비스 계층이던 뒷단이던 앞단이던 이 User가 이 Item에 대해 권한이 있는지에 대한 check가 필요.
@@ -98,5 +98,5 @@ public class ItemController {
         itemService.saveItem(book);
 
         return "redirect:/items";
-    }
+    }*/
 }
