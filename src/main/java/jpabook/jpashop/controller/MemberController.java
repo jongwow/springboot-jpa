@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -39,5 +40,15 @@ public class MemberController {
 
         memberService.join(member);
         return "redirect:/";
+    }
+
+    @GetMapping("/members")
+    public String list(Model model) {
+        List<Member> memberList = memberService.findMembers(); // 원래는 dto같은걸로 processing해서 주는것이 낫다.
+        // API를 만들때는 이유를 불문하고 entity 를 넘기면 절대 안됨. DTO를 넘겨주라.
+        // API는 password같은 것이 그대로 노출 + API 스펙이 변함.
+        // ssr은 어차피 서버에서 화면을 보내주는거니까 ㄱㅊ.
+        model.addAttribute("members", memberList);
+        return "members/memberList";
     }
 }
