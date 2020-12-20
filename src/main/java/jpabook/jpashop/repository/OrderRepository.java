@@ -1,10 +1,15 @@
 package jpabook.jpashop.repository;
 
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.domain.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -21,5 +26,84 @@ public class OrderRepository {
     }
 
     //=== 검색기능===//
-    //    public List<Order> findAll(OrderSearch orderSearch) {}
+
+    /**
+     * JPA Criteria
+     */
+    public List<Order> findAllByCriteria(OrderSearch orderSearch) {
+        // jpa에서 동적쿼리 작성할 수 있게 제공해주는 표준 방법
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Order> cq = cb.createQuery(Order.class);
+        Root<Order> o = cq.from(Order.class);
+        Join<Object, Object> m = o.join("member", JoinType.INNER);
+
+        List<Predicate> criteria = new ArrayList<>();
+
+        // 주문 상태 검색
+        if (orderSearch.getOrderStatus() != null) {
+            Predicate status = cb.equal(o.get("status"), orderSearch.getOrderStatus());
+            criteria.add(status);
+        }
+        // 회원 이름 검색
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            Predicate name = cb.like(m.get("name"), "%" + orderSearch.getMemberName() + "%");
+            criteria.add(name);
+        }
+        cq.where(cb.and(criteria.toArray(new Predicate[criteria.size()])));
+        TypedQuery<Order> query = em.createQuery(cq).setMaxResults(1000);
+        return query.getResultList();
+        // 치명적인 단점...
+        // 실무랑 동떨어져있는 코드, 가독성이 매우 떨어짐.
+        // 쿼리dsl로 작성 추천.
+    }
+
+    public List<Order> findAllByString(OrderSearch orderSearch) {
+        // 첫번째 방법
+        String jpql = "select o from Order o join o.member m";
+        boolean isFirstCondition = true;
+
+        // 주문 상태 검색
+        if (orderSearch.getOrderStatus() != null) {
+            if (isFirstCondition) {
+                jpql += " where";
+                isFirstCondition = false;
+            } else {
+                jpql += " and";
+            }
+            jpql += " o.status = :status";
+        }
+        // 회원 이름 검색
+        if(StringUtils.hasText(orderSearch.getMemberName())){
+            if (isFirstCondition) {
+                jpql += " where";
+                isFirstCondition = false;
+            }else{
+                jpql+=" and";
+            }
+            jpql += " m.name like :name";
+        }
+        TypedQuery<Order> query = em.createQuery(jpql, Order.class).setMaxResults(1000);
+        if(orderSearch.getOrderStatus() != null){
+            query = query.setParameter("status", orderSearch.getOrderStatus());
+        }
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
+            query = query.setParameter("name", orderSearch.getMemberName());
+        }
+        List<Order> resultList = query.getResultList();
+        return resultList;
+
+
+        /*
+        return em.createQuery("select o from Order o join o.member m" +
+                " where o.status = :status " + // 값이 없으면 이게 있으면 안되고, 다 가져와야함. 그런 경우는?
+                동적쿼리! 매우 어려운 것 중 하나다.
+                " and m.name like :name", Order.class)
+                .setParameter("status", orderSearch.getOrderStatus())
+                .setParameter("name", orderSearch.getMemberName())
+//                .setFirstResult() 페이징
+                .setMaxResults(1000)
+                .getResultList();
+
+         */
+    }
 }
