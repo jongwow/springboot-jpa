@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
@@ -45,5 +47,38 @@ public class ItemController {
         model.addAttribute("items", items);
 
         return "items/itemList";
+    }
+
+    @GetMapping("items/{itemId}/edit")
+    public String updateItemForm(@PathVariable("itemId") Long itemId, Model model) {
+        Book book = (Book) itemService.findOne(itemId);
+
+        BookForm bookForm = new BookForm();
+        bookForm.setId(book.getId());
+        bookForm.setName(book.getName());
+        bookForm.setPrice(book.getPrice());
+        bookForm.setStockQuantity(book.getStockQuantity());
+        bookForm.setAuthor(book.getAuthor());
+        bookForm.setIsbn(book.getIsbn());
+
+        model.addAttribute("form", bookForm);
+        return "items/updateItemForm";
+    }
+
+    @PostMapping("items/{itemId}/edit")
+    public String updateItem(@ModelAttribute("form") BookForm form, @PathVariable String itemId) {
+        // 실무 에선 itemId를 조심해야함. 뭔가 서비스 계층이던 뒷단이던 앞단이던 이 User가 이 Item에 대해 권한이 있는지에 대한 check가 필요.
+        // 아니면 업데이트할 객체를 세션에 놓고하는 방법도 있긴하지만 요즘엔 세션을 안써서...
+
+        Book book = new Book();
+        book.setName(form.getName());
+        book.setId(form.getId());
+        book.setPrice(form.getPrice());
+        book.setStockQuantity(form.getStockQuantity());
+        book.setAuthor(form.getAuthor());
+        book.setIsbn(form.getIsbn());
+
+        itemService.saveItem(book);
+        return "redirect:/items";
     }
 }

@@ -20,6 +20,7 @@ public class ItemRepository {
             em.persist(item);
         }else {
             em.merge(item); // 일종의 update같은 것.
+            // 이걸 잘 설명은 안하는데 실무에서 쓸일이 많진 않음. 화면에서 entity가 넘어오고 해야 merge를 쓰는 방식을 앎.
         }
     }
 
