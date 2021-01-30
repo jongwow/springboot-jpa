@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class Member {
     @Column(name = "member_id") // 단순하게 id라고 하면 찾거나 join할 때 쉽지 않음.
     private Long id;
 
+    @NotEmpty
     private String name;
 
     @Embedded
