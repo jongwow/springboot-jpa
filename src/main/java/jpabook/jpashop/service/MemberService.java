@@ -56,5 +56,10 @@ public class MemberService {
         return memberRepository.findOne(memberId);
     }
 
-    //
+    @Transactional
+    public void update(Long id, String name) {
+        Member member = memberRepository.findOne(id);
+        // 영속상태기 때문에 그냥 setName을 하면 transaction이 끝나고 커밋되는 시점에서 flush하면서 영속성 컨텍스트가 db에 해당 내용 저장함.
+        member.setName(name);
+    }
 }
