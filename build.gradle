@@ -27,6 +27,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-devtools' // 개발할 때 도움!
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+
+
 
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6' // 운영할 때는 성능저하를 일으킬 수 있으므로 조심!
 

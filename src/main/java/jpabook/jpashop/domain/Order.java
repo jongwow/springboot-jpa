@@ -17,7 +17,7 @@ import static javax.persistence.FetchType.LAZY;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Order {
+public class  Order {
     @Id
     @GeneratedValue
     @Column(name = "order_id")
@@ -27,7 +27,7 @@ public class Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL) // 일대다관계. 컬렉션이기때문에 복잡해짐.
     private List<OrderItem> orderItems = new ArrayList<>();
 
     //persist(orderItemA); persist(orderItemB); persist(orderItemC); 그 다음에 persist(order)를 해야하는데
