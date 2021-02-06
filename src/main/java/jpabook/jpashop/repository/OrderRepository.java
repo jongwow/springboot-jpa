@@ -73,17 +73,17 @@ public class OrderRepository {
             jpql += " o.status = :status";
         }
         // 회원 이름 검색
-        if(StringUtils.hasText(orderSearch.getMemberName())){
+        if (StringUtils.hasText(orderSearch.getMemberName())) {
             if (isFirstCondition) {
                 jpql += " where";
                 isFirstCondition = false;
-            }else{
-                jpql+=" and";
+            } else {
+                jpql += " and";
             }
             jpql += " m.name like :name";
         }
         TypedQuery<Order> query = em.createQuery(jpql, Order.class).setMaxResults(1000);
-        if(orderSearch.getOrderStatus() != null){
+        if (orderSearch.getOrderStatus() != null) {
             query = query.setParameter("status", orderSearch.getOrderStatus());
         }
         if (StringUtils.hasText(orderSearch.getMemberName())) {
@@ -105,5 +105,17 @@ public class OrderRepository {
                 .getResultList();
 
          */
+    }
+
+    public List<Order> findAllWithMemberDelivery() {
+        // 한번 쿼리로 order랑 delivery랑 member를 그냥 다 값을 채워서 가져오는 것. LAZY 무시.
+        // 이걸 fetch join이라고 함. 기술적으론 sql의 join인데, jpa에서 제공하는 fetch 사용.
+        // fetch join은 성능 개선을 위해서 항상 쓰는 거기 때문에 JPA 책 참고하길...
+        // 실무에서는 정말 90%의 성능문제가 N+1로 생기는 것. 근데 fetch join을 사용하는 것이 정말 중요
+        return em.createQuery(
+                "select o from Order o" +
+                        " join fetch o.member m" +
+                        " join  fetch o.delivery d", Order.class
+        ).getResultList();
     }
 }

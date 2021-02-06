@@ -49,6 +49,15 @@ public class OrderSimpleApiController {
         /* v1과 v2 둘 다 lazy loading으로 쿼리가 너무 복잡하게 많이 나가는 단점이 있음.*/
     }
 
+    @GetMapping("/api/v3/simple-orders")
+    public List<SimpleOrderDto> ordersV3() { // 반환은 이렇게 하기보단 그냥 result로 반환하는게 낫다.
+        // v2랑 v3는 결과적으로 같지만 쿼리가 다름. => 성능이 개선!
+        List<Order> orders = orderRepository.findAllWithMemberDelivery();
+        List<SimpleOrderDto> result = orders.stream().map(o -> new SimpleOrderDto(o))
+                .collect(Collectors.toList());
+        return result;
+    }
+
     @Data
     static class SimpleOrderDto {
         private Long orderId;
