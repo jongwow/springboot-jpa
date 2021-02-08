@@ -12,7 +12,7 @@ public class HomeController {
 
     // Logger logger = LoggerFactory.getLogger(getClass());=>롬복의 Slf4j
     @RequestMapping("/")
-    public String home(){
+    public String home() {
         log.info("home controller");
         return "home"; // home.html로
     }

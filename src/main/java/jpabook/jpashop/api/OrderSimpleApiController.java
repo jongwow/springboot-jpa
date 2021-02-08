@@ -6,6 +6,8 @@ import jpabook.jpashop.domain.Order;
 import jpabook.jpashop.domain.OrderStatus;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryDto;
+import jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class OrderSimpleApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderSimpleQueryRepository orderSimpleQueryRepository;
 
     @GetMapping("/api/v1/simple-orders")
     public List<Order> ordersV1() {
@@ -58,6 +61,23 @@ public class OrderSimpleApiController {
         return result;
     }
 
+    @GetMapping("/api/v4/simple-orders")
+    public List<OrderSimpleQueryDto> ordersV4() {
+        /* V3, V4는 TradeOff가 있음. (우열 힘듦)
+        * V3는 외부의 모습을 건드리지 않고,(order를) 내부의 원하는 것만 fetch join으로 가져온 것
+        * -> 재사용성이 나음
+        * -> V4에 비하면 조금 더 네트워크 통신이 많을 수 있다.
+        * V4는 Query를 만들 때 실제 SQL 짜듯 직접 수정해서 만든 것.
+        * -> 애플리케이션 네트웤 용량 최적화 (생각보다 미비...그렇게 차이가...)
+        * -> 재사용성이 없음... DTO로 조회한건 Entity가 아니기 때문에 뭐 변경할게 없음..
+        * -> 코드상 지저분.
+        *
+        * 게다가 repository에서 DTO를 조회하는건 쪼금...이상함...그래서 차라리 성능최적화용 package를 따로 만들기도...
+        *
+        * */
+        return orderSimpleQueryRepository.findOrderDtos();
+    }
+
     @Data
     static class SimpleOrderDto {
         private Long orderId;
@@ -74,20 +94,20 @@ public class OrderSimpleApiController {
             orderStatus = o.getStatus();
             address = o.getDelivery().getAddress();// LAZY 초기화: 여기도 마찬가지
             /*
-            * v2 분석
-            * ORDER -> SQL 1번 -> 결과 주문 수 2개
-            *
-            * 심플 디티오를 만들 때 루프가 두번 돌게됨.
-            * 처음 돌 때 order의 member를 찾기 때문에 member query 를 나가고, delivery도 마찬가지.
-            * 두번째 돌 때도 마찬가지
-            * 그러면 총 5번의 쿼리가 실행됨.
-            *
-            * 이게 주문 수가 2개일때도 5번의 쿼리가 발생하는건데, 그러면 10개면 얼마나 쿼리가 많이 나갈까!! -> 성능이슈!
-            * 이걸 N+1의 문제. (1+N)이라 불러야할지도...
-            * order 가 2개니까, 1 + 회원 N + 배송 N. => 1 + 2 + 2 => 5개.
-            *
-            * 그렇다고 지연 로딩을 EAGER로 바꾸면 될까? JPA에서도 이걸 많이 썼었는데 쓰면 쓸수록 실무에서 별로....
-            * */
+             * v2 분석
+             * ORDER -> SQL 1번 -> 결과 주문 수 2개
+             *
+             * 심플 디티오를 만들 때 루프가 두번 돌게됨.
+             * 처음 돌 때 order의 member를 찾기 때문에 member query 를 나가고, delivery도 마찬가지.
+             * 두번째 돌 때도 마찬가지
+             * 그러면 총 5번의 쿼리가 실행됨.
+             *
+             * 이게 주문 수가 2개일때도 5번의 쿼리가 발생하는건데, 그러면 10개면 얼마나 쿼리가 많이 나갈까!! -> 성능이슈!
+             * 이걸 N+1의 문제. (1+N)이라 불러야할지도...
+             * order 가 2개니까, 1 + 회원 N + 배송 N. => 1 + 2 + 2 => 5개.
+             *
+             * 그렇다고 지연 로딩을 EAGER로 바꾸면 될까? JPA에서도 이걸 많이 썼었는데 쓰면 쓸수록 실무에서 별로....
+             * */
         }
     }
     /*
