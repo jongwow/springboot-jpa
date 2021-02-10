@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class  Order {
     @JoinColumn(name = "member_id")
     private Member member;
 
+//    @BatchSize(size = 1000) 컬렉션일 때는 이런식으로 적어두면 됨. 근데 그냥 default_batch_fetch_size로 설정하는게 나을지도.
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL) // 일대다관계. 컬렉션이기때문에 복잡해짐.
     private List<OrderItem> orderItems = new ArrayList<>();
 

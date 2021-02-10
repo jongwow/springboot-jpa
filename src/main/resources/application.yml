@@ -11,6 +11,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
 #        show_sql: true # sout으로 출력되기때문에 아래 logging으로 보자
 
 logging:
