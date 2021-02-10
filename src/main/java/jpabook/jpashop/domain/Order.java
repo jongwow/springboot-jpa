@@ -74,6 +74,7 @@ public class  Order {
     //=== 생성 메서드===//
     // 복잡한 생성은 생성 메소드로 하는게 좋다.
     public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) {
+        System.out.println("createOrder Called");
         Order order = new Order();
         order.setMember(member);
         order.setDelivery(delivery);
