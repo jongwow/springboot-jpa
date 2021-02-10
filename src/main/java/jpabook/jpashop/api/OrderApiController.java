@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
@@ -45,10 +46,32 @@ public class OrderApiController {
         return dtos;
     }
 
-    @Data // 애매한 경우엔 안쓰는게 나을지도..
+    @GetMapping("/api/v3/orders")
+    public List<OrderDto> ordersV3() {
+        List<Order> orders = orderRepository.findAllWithItem();
+        List<OrderDto> result = orders.stream().map(o -> new OrderDto(o))
+                .collect(Collectors.toList());
+
+        return result;
+    }
+
+    @GetMapping("/api/v3.1/orders")
+    public List<OrderDto> ordersV3_page(
+            @RequestParam(value = "offset", defaultValue = "0") int offset,
+            @RequestParam(value = "limit", defaultValue = "100") int limit
+    ) {
+        List<Order> orders = orderRepository.findAllWithItemV2(offset, limit);
+
+        List<OrderDto> result = orders.stream().map(o -> new OrderDto(o))
+                .collect(Collectors.toList());
+
+        return result;
+    }
+
+    @Data // 이 어노테이션은 애매한 경우엔 안쓰는게 나을지도 모른다.
     static class OrderDto {
         // Dto안에서도 Entity를 넣는건 별로...
-        // 즉, DTO안에서도 Entity는 DTO로 바꿔줘야함. orderItem에서 entity를 수정하면 =========
+        // 즉, DTO안에서도 Entity는 DTO로 바꿔줘야함. orderItem에서 entity를 수정하면 ========®=
         private Long orderId;
         private String name;
         private LocalDateTime orderDate;

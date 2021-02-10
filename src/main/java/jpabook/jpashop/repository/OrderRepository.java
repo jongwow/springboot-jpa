@@ -115,7 +115,36 @@ public class OrderRepository {
         return em.createQuery(
                 "select o from Order o" +
                         " join fetch o.member m" +
-                        " join  fetch o.delivery d", Order.class
+                        " join fetch o.delivery d", Order.class
         ).getResultList();
+    }
+
+    public List<Order> findAllWithItem() {
+        // 실무에서는 이런 경우에 querydsl를 많이 씀.
+
+        // order 입장에서는 order의 데이터가 뻥튀기가 됨. (left join이라서, left table의 값이 여럿이 됨)
+        // 그래서 distinct 라는 것을 사용해준다. 이 distinct는 db의 그것이기도 하지만 jpa에서의 distinct이기도 함.
+        // db상에서는 한 줄이 모두 같아야 중복이라 보는데, jpa의 distinct에선 pk만 같아 짜른다.
+        return em.createQuery(
+                "select distinct o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d" +
+                        " join fetch o.orderItems oi" +
+                        " join fetch oi.item i", Order.class)
+                .getResultList();
+        // 어마어마한 단점! 페이징이 불가능함.
+        // 컬렉션에 페치 조인은 한개만 할 수 있다. 1대다에 대한 페이조인은 하나만! 컬렉션 둘 이상에 패치 조인을 사용하면 N*N이 되기 때문에 JPA에서 데이터를 못맞출 수 있음.
+    }
+
+    public List<Order> findAllWithItemV2(int offset, int limit) {
+        return em.createQuery(
+                "select distinct o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d", Order.class) // 여기까진 ToOne관계이기때문에 페치조연을 한다.
+//                        " join fetch o.orderItems oi" + // 컬렉션은 지연로딩으로 조회한다.
+//                        " join fetch oi.item i", Order.class)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
     }
 }
