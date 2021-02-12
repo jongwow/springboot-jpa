@@ -75,6 +75,11 @@ public class OrderApiController {
         return orderQueryRepository.findOrderQueryDtos();
     }
 
+    @GetMapping("/api/v5/orders")
+    public List<OrderQueryDto> ordersV5(){
+        return orderQueryRepository.findAllByDto_optimization();
+    }
+
     @Data // 이 어노테이션은 애매한 경우엔 안쓰는게 나을지도 모른다.
     static class OrderDto {
         // Dto안에서도 Entity를 넣는건 별로...

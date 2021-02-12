@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,5 +43,31 @@ public class OrderQueryRepository {
                 " join o.member m" +
                 " join o.delivery d", OrderQueryDto.class)
                 .getResultList();
+    }
+
+    public List<OrderQueryDto> findAllByDto_optimization() {
+        List<OrderQueryDto> result = findOrders();
+
+        List<Long> orderIds = toOrderIds(result);
+
+        // v4랑 차이는, v4에선 루프에서 쿼리를 계속 호출했는데 여기선 한번 크게 실행하고 메모리에서 값을 가져오는 느낌.
+        List<OrderItemQueryDto> orderitems = em.createQuery(
+                "select new jpabook.jpashop.repository.order.query.OrderItemQueryDto(oi.order.id, i.name, oi.orderPrice, oi.count)" +
+                        " from OrderItem oi" +
+                        " join oi.item i" +
+                        " where oi.order.id in :orderIds", OrderItemQueryDto.class)
+                .setParameter("orderIds", orderIds).getResultList();
+
+        // 그냥 O(NM)으로 루프 두번 돌려도 되는데, 그냥 Map 구조체에 올려놓고 밑 forEach에서 get해서 접근 O(N+1)
+        Map<Long, List<OrderItemQueryDto>> orderItemMap = orderitems.stream()
+                .collect(Collectors.groupingBy(OrderItemQueryDto -> OrderItemQueryDto.getOrderId()));
+
+        result.forEach(o -> o.setOrderItems(orderItemMap.get(o.getOrderId())));
+
+        return result;
+    }
+
+    private List<Long> toOrderIds(List<OrderQueryDto> result) {
+        return result.stream().map(o -> o.getOrderId()).collect(Collectors.toList());
     }
 }
