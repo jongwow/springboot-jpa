@@ -33,7 +33,7 @@ public class OrderService {
         Item item = itemRepository.findOne(itemId);
 
         // 배송정보 생성
-        Delivery delivery = new Delivery();
+        Delivery delivery = new Delivery( );
         delivery.setStatus(DeliveryStatus.READY);
         delivery.setAddress(member.getAddress());
 
@@ -63,6 +63,6 @@ public class OrderService {
     }
 
     public List<Order> findOrders(OrderSearch orderSearch) {
-        return orderRepository.findAllByString(orderSearch);
+        return orderRepository.findAll(orderSearch);
     }
 }
