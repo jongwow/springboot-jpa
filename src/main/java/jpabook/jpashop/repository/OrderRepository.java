@@ -17,10 +17,18 @@ import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jpabook.jpashop.domain.QMember.*;
+import static jpabook.jpashop.domain.QOrder.*;
+
 @Repository
-@RequiredArgsConstructor
 public class OrderRepository {
     private final EntityManager em;
+    private final JPAQueryFactory query;
+
+    public OrderRepository(EntityManager em) {
+        this.em = em;
+        this.query = new JPAQueryFactory(em);
+    }
 
     public void save(Order order) {
         em.persist(order);
@@ -113,31 +121,23 @@ public class OrderRepository {
     }
 
     public List<Order> findAll(OrderSearch orderSearch) {
-        JPAQueryFactory query = new JPAQueryFactory(em);
-
-        //queryDsl를 사용하려면 Q-<>를 만들어줘야함.
-        QOrder order = QOrder.order;
-        QMember member = QMember.member;
-
         return query
                 .select(order)
                 .from(order)
                 .join(order.member, member)
-                .where(statusEq(orderSearch.getOrderStatus()), nameLike(orderSearch.getMemberName())) // 동적쿼리
-//                .where(order.status.eq(orderSearch.getOrderStatus()),member.name.like(orderSearch.getMemberName())) // 정적쿼리.
+                .where(statusEq(orderSearch.getOrderStatus()), nameLike(orderSearch.getMemberName()))
                 .limit(1000)
                 .fetch();
-        // 이렇게하면 자바로 동적인데도 자바라서 컴파일시점에서 많은 에러가 다 잡힘.
     }
 
     private BooleanExpression nameLike(String name) {
         if (!StringUtils.hasText(name)) return null;
-        return QMember.member.name.like(name);
+        return member.name.like(name);
     }
 
     private BooleanExpression statusEq(OrderStatus orderStatus) {
         if (orderStatus == null) return null;
-        return QOrder.order.status.eq(orderStatus);
+        return order.status.eq(orderStatus);
     }
 
     public List<Order> findAllWithMemberDelivery() {
