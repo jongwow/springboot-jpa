@@ -10,6 +10,8 @@ import jpabook.jpashop.repository.order.query.OrderFlatDto;
 import jpabook.jpashop.repository.order.query.OrderItemQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryDto;
 import jpabook.jpashop.repository.order.query.OrderQueryRepository;
+import jpabook.jpashop.service.query.OrderDto;
+import jpabook.jpashop.service.query.OrderQueryService;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,19 +47,16 @@ public class OrderApiController {
     @GetMapping("/api/v2/orders")
     public List<OrderDto> ordersV2() {
         List<Order> orders = orderRepository.findAllByString(new OrderSearch());
-        List<OrderDto> dtos = orders.stream().map(o -> new OrderDto(o))
+        List<OrderDto> dtos = orders.stream().map(o ->  new OrderDto(o))
                 .collect(Collectors.toList());
 
         return dtos;
     }
 
+    private final OrderQueryService orderQueryService;
     @GetMapping("/api/v3/orders")
     public List<OrderDto> ordersV3() {
-        List<Order> orders = orderRepository.findAllWithItem();
-        List<OrderDto> result = orders.stream().map(o -> new OrderDto(o))
-                .collect(Collectors.toList());
-
-        return result;
+        return orderQueryService.ordersV3();
     }
 
     @GetMapping("/api/v3.1/orders")
@@ -95,39 +94,4 @@ public class OrderApiController {
         return result;
     }
 
-    @Data // 이 어노테이션은 애매한 경우엔 안쓰는게 나을지도 모른다.
-    static class OrderDto {
-        // Dto안에서도 Entity를 넣는건 별로...
-        // 즉, DTO안에서도 Entity는 DTO로 바꿔줘야함. orderItem에서 entity를 수정하면 ========®=
-        private Long orderId;
-        private String name;
-        private LocalDateTime orderDate;
-        private OrderStatus orderStatus;
-        private Address address;
-
-        private List<OrderItemDto> orderItems; // 이런 내부 entity도 DTO로 꼭 바꿔주기!
-
-        public OrderDto(Order order) {
-            orderId = order.getId();
-            name = order.getMember().getName();
-            orderDate = order.getOrderDate();
-            orderStatus = order.getStatus();
-            address = order.getDelivery().getAddress();
-            orderItems = order.getOrderItems().stream().map(o -> new OrderItemDto(o))
-                    .collect(Collectors.toList());
-        }
-
-        @Getter
-        static class OrderItemDto {
-            private String itemName; // 상품명
-            private int orderPrice; // 주문 가격
-            private int count; //주문 수량
-
-            public OrderItemDto(OrderItem o) {
-                itemName = o.getItem().getName();
-                orderPrice = o.getOrderPrice();
-                count = o.getCount();
-            }
-        }
-    }
 }
